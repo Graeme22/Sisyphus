@@ -2,27 +2,39 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+/*This script is used to test the boundary cases for the healthbar.  The HealthBar class creates references to the healthbar objects on the canvas and the 
+ * Health class below contains the logic functions, namely buttons and condition changes, that are used to alter the health value and test its
+ * functionality.
+ */
 public class HealthBar : MonoBehaviour //This is the class that holds the objects
 {
-    private Health health;
+    //private Health health;
     private Image TopLayerImage;
+    public PlayerHealth healthImage;
 
     private void Awake()
     {
         TopLayerImage = transform.Find("TopLayer").GetComponent<Image>();
-
-        health = new Health();
+        healthImage = FindObjectOfType<PlayerHealth>();
+        //health = new Health();
 
     }
     private void Update()
     {
       //  Debug.Log("for health.Update");
-        health.Update();
+       // health.Update();
         //Debug.Log("aft health.Update");
-        TopLayerImage.fillAmount = health.NormalizeHealth();
+       // TopLayerImage.fillAmount = health.NormalizeHealth();
+        TopLayerImage.fillAmount = NormalizeHealth();
     }
 
+    private float NormalizeHealth ()
+    {
+        float normalizedHealth;
+        normalizedHealth = healthImage.health / 100f;
+        return normalizedHealth;
+    }
+/*
     public void callLoseHealthDemo()
     {
         health.LoseHealthDemo();
@@ -31,29 +43,29 @@ public class HealthBar : MonoBehaviour //This is the class that holds the object
     {
         health.GainHealthDemo();
     }
-
+    */
 }
 
-public class Health //Needs to be made into a subclass of the type "Entity Stats"
+/*public class Health //Needs to be made into a subclass of the type "Entity Stats"
     //This is the class that contains the logic for how the health bar and health stats interact
 {
     private int Health_Max = 100;
     private float healthTotal;
     private float healthRegen;
     
-    public Health()
+    /*public Health()
     {
         healthTotal = 100;
         healthRegen = 14;
 
     }
-    
-    public void Update ()
+    */
+ /*   public void Update ()
     {
         //healthTotal += healthRegen * Time.deltaTime;
 
-    }
-    public void GainHealthDemo()
+    }*/
+    /*public void GainHealthDemo()
     {
         if (healthTotal <= 86)
         {
@@ -95,4 +107,4 @@ public class Health //Needs to be made into a subclass of the type "Entity Stats
     
 }
 
-   
+   */

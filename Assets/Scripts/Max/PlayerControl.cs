@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+
 
 //player uses physics based movement to traverse. This will lead to hilarity and lots of bugs I will come to hate.
 
@@ -12,13 +14,20 @@ public class PlayerControl : MonoBehaviour
 
     public float moveForce = 365f;  //how much force is applied to player to cause movement
     public float maxSpeed = 5f; //x-axis maximum speed
-    public float jumpForce = 1000f; //force applied to make player jump up
+    public float jumpForce = 10f; //force applied to make player jump up
     public float attackStrength = 1f;   //amount of damage player can do with attacks
 
     private Transform groundCheck;  //is grounded? as a transform
     public bool grounded = false;  //is grounded? internal state
     private Animator anim;  //will be useful for animations
     Rigidbody2D rb;
+
+	private float attackTimer = 0;
+	private float attackTime = 0.5f;
+	private float attackDamage = 100.0f;
+	private float attackDistance = 1.0f;
+
+	[SerializeField] private AudioClip clip;
 
     void Awake()
     {
@@ -55,6 +64,8 @@ public class PlayerControl : MonoBehaviour
 
     void FixedUpdate()
     {
+		attackTimer += Time.deltaTime;
+
         //horizontal input
         float h = Input.GetAxis("Horizontal");
 
@@ -70,6 +81,34 @@ public class PlayerControl : MonoBehaviour
         if (Mathf.Abs(GetComponent<Rigidbody2D>().velocity.x) > maxSpeed){
             GetComponent<Rigidbody2D>().velocity = new Vector2(Mathf.Sign(GetComponent<Rigidbody2D>().velocity.x) * maxSpeed, GetComponent<Rigidbody2D>().velocity.y);
         }
+
+		// check if the player is close enough and if there is an attack button pressed
+		if (Input.GetMouseButtonDown(0) && attackTimer >= attackTime)
+		{
+			attackTimer = 0;
+
+			// then we use the EnemyManager class to check if there are any enemies near the player
+			List<GameObject> list = new List<GameObject>();
+			list = EnemyManager.GetInstance().GetObjectsCloseTo(transform.position, 15);
+
+			// play our attack sound
+			GetComponent<AudioSource>().Play();
+
+			foreach (GameObject @object in list)
+			{
+				// since we know all of these objects are enemies, we cast the type
+				Enemy enemy = @object.GetComponent<Enemy>();
+
+				// if this object is in fact an enemy
+				if (enemy != null)
+				{
+					// then we use the enemy OnDamage method
+					enemy.OnDamage(attackDamage);
+
+					Debug.Log("Enemy attacked");
+				}
+			}
+		}
 
         // If the input is moving right, flip to right direction
         if (h > 0 && !isRight)
